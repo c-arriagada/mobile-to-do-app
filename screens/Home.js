@@ -1,9 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { Button } from "react-native-paper";
 import Icon from "react-native-vector-icons/FontAwesome5";
+// import Tooltip from "react-native-walkthrough-tooltip";
 
-export default Home = () => {
+export default Home = ({navigation}) => {
+  const [taskList, setTaskList] = useState([]);
+
   const today = new Date();
   const options = { year: "numeric", month: "long", day: "numeric" };
   const formattedDate = today.toLocaleDateString("en-US", options);
@@ -11,12 +14,14 @@ export default Home = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.date}>{formattedDate}</Text>
-      <Button
-        style={styles.button}
-        onPress={() => console.log("added new task")}
-      >
-        <Icon name="plus" color={"white"}></Icon>
-      </Button>
+          <Button
+            style={styles.button}
+            onPress={() => {
+              navigation.navigate("Add Task")
+            }}
+          >
+            <Icon name="plus" color={"white"}></Icon>
+          </Button>
     </View>
   );
 };
