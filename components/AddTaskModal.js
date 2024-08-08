@@ -1,12 +1,10 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, StyleSheet } from "react-native";
 import { TextInput, Button } from "react-native-paper";
 import Icon from "react-native-vector-icons/AntDesign";
-import { useTaskContext } from "../TaskContext";
 
-export default AddTaskModal = ({ navigation}) => {
-  const [task, setTask] = useState("")
-  const {taskList, setTaskList} = useTaskContext()
+export default AddTaskModal = ({ navigation }) => {
+  const [task, setTask] = useState("");
 
   return (
     <View style={styles.container}>
@@ -22,8 +20,7 @@ export default AddTaskModal = ({ navigation}) => {
         <Button
           style={styles.button}
           onPress={() => {
-            setTaskList(...taskList, task);
-            navigation.navigate("Home");
+            navigation.navigate("Home", { task });
           }}
         >
           <Icon name="enter"></Icon>
