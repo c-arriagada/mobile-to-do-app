@@ -8,14 +8,13 @@ export default Cover = ({ navigation }) => {
     <View style={styles.container}>
       <Text style={styles.heading}>Organize Your</Text>
       <Text style={styles.heading}>Tasks with SQLite</Text>
-      <Text>Designed for Happiness, Not Just Profuctivity.</Text>
+      <Text>Designed for Happiness, Not Just Productivity.</Text>
       <Text>Enjoy a Stress-free Way to Manage Your Day.</Text>
       <Button
         style={styles.button}
         buttonColor="#6BA2EA"
         textColor="white"
         onPress={() => {
-          console.log("Get started button pressed");
           navigation.navigate("Home");
         }}
       >
@@ -41,7 +40,7 @@ const styles = StyleSheet.create({
   },
   button: {
     position: "absolute",
-    bottom: 70, // 50 units from the top
-    right: 20, // 20 units from the left
+    bottom: 70, 
+    right: 20, 
   },
 });

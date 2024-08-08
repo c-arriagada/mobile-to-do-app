@@ -1,11 +1,12 @@
-import React, { useState } from "react";
+import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { Button } from "react-native-paper";
 import Icon from "react-native-vector-icons/FontAwesome5";
 // import Tooltip from "react-native-walkthrough-tooltip";
+import { useTaskContext } from "../TaskContext";
 
-export default Home = ({navigation}) => {
-  const [taskList, setTaskList] = useState([]);
+export default Home = ({ navigation }) => {
+  const { taskList, setTaskList} = useTaskContext();
 
   const today = new Date();
   const options = { year: "numeric", month: "long", day: "numeric" };
@@ -14,14 +15,14 @@ export default Home = ({navigation}) => {
   return (
     <View style={styles.container}>
       <Text style={styles.date}>{formattedDate}</Text>
-          <Button
-            style={styles.button}
-            onPress={() => {
-              navigation.navigate("Add Task")
-            }}
-          >
-            <Icon name="plus" color={"white"}></Icon>
-          </Button>
+      <Button
+        style={styles.button}
+        onPress={() => {
+          navigation.navigate("Add Task");
+        }}
+      >
+        <Icon name="plus" color={"white"} />
+      </Button>
     </View>
   );
 };
@@ -39,7 +40,7 @@ const styles = StyleSheet.create({
   button: {
     backgroundColor: "#6BA2EA",
     position: "absolute",
-    bottom: 70, // 50 units from the top
-    right: 20, // 20 units from the left
+    bottom: 70,
+    right: 20, 
   },
 });
