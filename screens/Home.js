@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { View, Text, StyleSheet, FlatList } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { Button } from "react-native-paper";
@@ -6,7 +6,7 @@ import Icon from "react-native-vector-icons/FontAwesome";
 
 export default Home = ({ navigation, route }) => {
   const [taskList, setTaskList] = useState([]);
-  const [checked, setChecked] = useState(false)
+  const [checked, setChecked] = useState(false);
 
   const today = new Date();
   const options = { year: "numeric", month: "long", day: "numeric" };
@@ -15,8 +15,8 @@ export default Home = ({ navigation, route }) => {
   const newTask = route.params ? route.params.task : undefined;
 
   const handleIconPress = () => {
-    setChecked(!checked)
-  }
+    setChecked(!checked);
+  };
 
   useEffect(() => {
     if (newTask) {
@@ -28,13 +28,14 @@ export default Home = ({ navigation, route }) => {
     <View style={styles.container}>
       <Text style={styles.date}>{formattedDate}</Text>
       <FlatList
+        style={styles.taskList}
         data={taskList}
         keyExtractor={(item, index) => index}
         renderItem={({ item }) => (
           <View style={styles.taskRow}>
             <Text>{item}</Text>
             <TouchableOpacity onPress={handleIconPress}>
-            <Icon name={checked ? "check-circle" : "circle-thin"} size={20}/>
+              <Icon name={checked ? "check-circle" : "circle-thin"} size={20} />
             </TouchableOpacity>
           </View>
         )}
@@ -71,8 +72,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     fontSize: 16,
-    borderBottomColor: 'gray',
+    borderBottomColor: "gray",
     borderBottomWidth: 1,
-    padding: 10
-  }
+    padding: 10,
+  },
+  taskList: {
+    paddingTop: 40,
+  },
 });
