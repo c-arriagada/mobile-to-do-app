@@ -3,6 +3,8 @@ import { View, Text, StyleSheet, FlatList } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { Button } from "react-native-paper";
 import Icon from "react-native-vector-icons/FontAwesome";
+import { DB_CONNECTION_STRING } from "@env";
+import { Database } from "@sqlitecloud/drivers";
 
 export default Home = ({ navigation, route }) => {
   const [taskList, setTaskList] = useState([]);
@@ -17,6 +19,26 @@ export default Home = ({ navigation, route }) => {
   const handleIconPress = () => {
     setChecked(!checked);
   };
+
+  useEffect(() => {
+    async function createTable() {
+      try {
+        const db = new Database({connectionstring: DB_CONNECTION_STRING, usewebsocket: true});
+
+        const result = await db.sql(
+          "USE DATABASE todo.sqlite; CREATE TABLE IF NOT EXISTS tasks (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, task TEXT NOT NULL);"
+        );
+        console.log(result)
+
+        if (result === 'OK') {
+          console.log("Successfully created table");
+        }
+      } catch (error) {
+        console.error("Error creating table", error);
+      }
+    }
+    createTable();
+  }, []);
 
   useEffect(() => {
     if (newTask) {
