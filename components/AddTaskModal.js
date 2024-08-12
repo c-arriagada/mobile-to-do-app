@@ -15,7 +15,7 @@ export default AddTaskModal = ({ navigation }) => {
           value={task}
           onChangeText={(task) => setTask(task)}
           placeholder="add a new task"
-          keyboardType="default"
+          keyboardType="default" // TODO: test keyboard in iphone
         />
         <Button
           style={styles.button}

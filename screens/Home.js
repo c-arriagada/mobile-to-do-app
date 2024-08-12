@@ -8,7 +8,12 @@ import { Database } from "@sqlitecloud/drivers";
 
 export default Home = ({ navigation, route }) => {
   const [taskList, setTaskList] = useState([]);
-  const [checked, setChecked] = useState(false);
+  const [checked, setChecked] = useState(false); //TODO: check individual tasks versus the whole task list
+
+  const db = new Database({
+    connectionstring: DB_CONNECTION_STRING,
+    usewebsocket: true,
+  });
 
   const today = new Date();
   const options = { year: "numeric", month: "long", day: "numeric" };
@@ -23,14 +28,12 @@ export default Home = ({ navigation, route }) => {
   useEffect(() => {
     async function createTable() {
       try {
-        const db = new Database({connectionstring: DB_CONNECTION_STRING, usewebsocket: true});
-
         const result = await db.sql(
           "USE DATABASE todo.sqlite; CREATE TABLE IF NOT EXISTS tasks (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, task TEXT NOT NULL);"
         );
-        console.log(result)
+        console.log(result);
 
-        if (result === 'OK') {
+        if (result === "OK") {
           console.log("Successfully created table");
         }
       } catch (error) {
@@ -41,9 +44,23 @@ export default Home = ({ navigation, route }) => {
   }, []);
 
   useEffect(() => {
-    if (newTask) {
-      setTaskList([...taskList, newTask]);
+    async function getTasks() {
+      try {
+        if (newTask !== undefined) {
+          const addNewTask = await db.sql(
+            "INSERT INTO tasks (task) VALUES (?)",
+            newTask
+          );
+          console.log("Added new task");
+        }
+        const result = await db.sql`SELECT * FROM tasks`;
+        console.log(result);
+        setTaskList(result.map((task) => task.task));
+      } catch (error) {
+        console.error("Error getting tasks", error);
+      }
     }
+    getTasks();
   }, [newTask]);
 
   return (
