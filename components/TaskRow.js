@@ -2,10 +2,10 @@ import React, { useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { Swipeable } from "react-native-gesture-handler";
-import { CurrentRenderContext } from "@react-navigation/native";
 
 export default TaskRow = ({ item, handleIconPress }) => {
-  const [checked, setChecked] = useState(false); 
+  const { title, isCompleted } = item;
+  const [checked, setChecked] = useState(isCompleted);
 
   const renderLeftActions = () => {
     return (
@@ -21,16 +21,16 @@ export default TaskRow = ({ item, handleIconPress }) => {
   return (
     <Swipeable renderLeftActions={renderLeftActions}>
       <View style={styles.taskRow}>
-        <Text>{item}</Text>
+        <Text>{title}</Text>
         <TouchableOpacity onPress={handleIconPress}>
           <Icon
-            name={checked ? "check-circle" : "circle-thin"}
+            name={isCompleted === 1 ? "check-circle" : "circle-thin"}
             size={20}
             color={"#6BA2EA"}
           />
         </TouchableOpacity>
       </View>
-      <View style={styles.dottedBox}/>
+      <View style={styles.dottedBox} />
     </Swipeable>
   );
 };
@@ -50,8 +50,8 @@ const styles = StyleSheet.create({
   },
   dottedBox: {
     borderWidth: 1,
-    borderColor: 'lightgray',
-    borderStyle: 'dashed',
+    borderColor: "lightgray",
+    borderStyle: "dashed",
   },
   deleteButtonText: {
     color: "white",

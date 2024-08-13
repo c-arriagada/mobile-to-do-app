@@ -30,9 +30,8 @@ export default Home = ({ navigation, route }) => {
     async function createTable() {
       try {
         const result = await db.sql(
-          "USE DATABASE todo.sqlite; CREATE TABLE IF NOT EXISTS tasks (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, task TEXT NOT NULL);"
+          "USE DATABASE todo.sqlite; CREATE TABLE IF NOT EXISTS tasks (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL, isCompleted INT NOT NULL);"
         );
-        console.log(result);
 
         if (result === "OK") {
           console.log("Successfully created table");
@@ -49,14 +48,14 @@ export default Home = ({ navigation, route }) => {
       try {
         if (newTask !== undefined) {
           const addNewTask = await db.sql(
-            "USE DATABASE todo.sqlite; INSERT INTO tasks (task) VALUES (?)",
-            newTask
+            "USE DATABASE todo.sqlite; INSERT INTO tasks (title, isCompleted) VALUES (?, ?)",
+            newTask, false
           );
           console.log("Added new task");
         }
         const result = await db.sql`USE DATABASE todo.sqlite; SELECT * FROM tasks`;
-        console.log(result);
-        setTaskList(result.map((task) => task.task));
+        console.log("result", result);
+        setTaskList(result);
       } catch (error) {
         console.error("Error getting tasks", error);
       }

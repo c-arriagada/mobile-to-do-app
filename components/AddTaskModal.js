@@ -10,8 +10,8 @@ export default AddTaskModal = ({ navigation }) => {
     <View style={styles.container}>
       <View style={styles.newTaskBox}>
         <TextInput
+          underlineColor="transparent"
           style={styles.textInput}
-          label="task"
           value={task}
           onChangeText={(task) => setTask(task)}
           placeholder="add a new task"
@@ -38,9 +38,19 @@ const styles = StyleSheet.create({
   },
   newTaskBox: {
     flexDirection: "row",
+    alignItems: "center",
+    borderTopWidth: 2,
+    borderBottomWidth: 2,
+    borderColor: "lightgray",
   },
   textInput: {
-    width: "75%",
+    flex: 1,
+    fontSize: 16,
     backgroundColor: "white",
+  },
+  button: {
+    height: 50,
+    width: 50,
+    borderRadius: 0,
   },
 });
