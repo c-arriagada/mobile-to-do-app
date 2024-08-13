@@ -1,5 +1,5 @@
-import React, { useState, useEffect} from "react";
-import { View, Text, StyleSheet, FlatList } from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, Text, StyleSheet, FlatList, Alert } from "react-native";
 import { Button } from "react-native-paper";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { DB_CONNECTION_STRING } from "@env";
@@ -20,10 +20,39 @@ export default Home = ({ navigation, route }) => {
 
   // TODO: Check state when adding tasks, is adding new tasks twice
   const newTask = route.params ? route.params.task : undefined;
-  console.log("task added", newTask);
 
   const handleIconPress = () => {
     // setChecked(!checked);
+  };
+
+  const getTasks = async () => {
+    try {
+      if (newTask !== undefined) {
+        const addNewTask = await db.sql(
+          "USE DATABASE todo.sqlite; INSERT INTO tasks (title, isCompleted) VALUES (?, ?)",
+          newTask,
+          false
+        );
+      }
+      const result =
+        await db.sql`USE DATABASE todo.sqlite; SELECT * FROM tasks`;
+      setTaskList(result);
+    } catch (error) {
+      console.error("Error getting tasks", error);
+    }
+  };
+
+  const deleteTask = async (taskId) => {
+    try {
+      const result = await db.sql(
+        "USE DATABASE todo.sqlite; DELETE FROM tasks WHERE id=?",
+        taskId
+      );
+      console.log(`deleted ${result[0].TOTAL_CHANGES} task`);
+      getTasks();
+    } catch (error) {
+      console.error("Error deleting task", deleteTask);
+    }
   };
 
   useEffect(() => {
@@ -44,24 +73,27 @@ export default Home = ({ navigation, route }) => {
   }, []);
 
   useEffect(() => {
-    async function getTasks() {
-      try {
-        if (newTask !== undefined) {
-          const addNewTask = await db.sql(
-            "USE DATABASE todo.sqlite; INSERT INTO tasks (title, isCompleted) VALUES (?, ?)",
-            newTask, false
-          );
-          console.log("Added new task");
-        }
-        const result = await db.sql`USE DATABASE todo.sqlite; SELECT * FROM tasks`;
-        console.log("result", result);
-        setTaskList(result);
-      } catch (error) {
-        console.error("Error getting tasks", error);
-      }
-    }
     getTasks();
   }, [newTask]);
+
+  const handleDelete = (taskId) => {
+    Alert.alert(
+      "Confirm Delete",
+      "Are you sure you want to delete this task?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Delete",
+          onPress: () => deleteTask(taskId),
+          style: "destructive",
+        },
+      ],
+      { cancelable: true } // Allows the alert to be dismissed by clicking outside of it
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -71,7 +103,11 @@ export default Home = ({ navigation, route }) => {
         data={taskList}
         keyExtractor={(item, index) => index}
         renderItem={({ item }) => (
-          <TaskRow item={item} handleIconPress={handleIconPress} />
+          <TaskRow
+            item={item}
+            handleIconPress={handleIconPress}
+            handleDelete={handleDelete}
+          />
         )}
       />
       <Button
