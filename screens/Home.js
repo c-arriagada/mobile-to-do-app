@@ -1,14 +1,13 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect} from "react";
 import { View, Text, StyleSheet, FlatList } from "react-native";
-import { TouchableOpacity } from "react-native-gesture-handler";
 import { Button } from "react-native-paper";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { DB_CONNECTION_STRING } from "@env";
 import { Database } from "@sqlitecloud/drivers";
+import TaskRow from "../components/TaskRow";
 
 export default Home = ({ navigation, route }) => {
   const [taskList, setTaskList] = useState([]);
-  const [checked, setChecked] = useState(false); //TODO: check individual tasks versus the whole task list
 
   const db = new Database({
     connectionstring: DB_CONNECTION_STRING,
@@ -19,10 +18,12 @@ export default Home = ({ navigation, route }) => {
   const options = { year: "numeric", month: "long", day: "numeric" };
   const formattedDate = today.toLocaleDateString("en-US", options);
 
+  // TODO: Check state when adding tasks, is adding new tasks twice
   const newTask = route.params ? route.params.task : undefined;
+  console.log("task added", newTask);
 
   const handleIconPress = () => {
-    setChecked(!checked);
+    // setChecked(!checked);
   };
 
   useEffect(() => {
@@ -48,12 +49,12 @@ export default Home = ({ navigation, route }) => {
       try {
         if (newTask !== undefined) {
           const addNewTask = await db.sql(
-            "INSERT INTO tasks (task) VALUES (?)",
+            "USE DATABASE todo.sqlite; INSERT INTO tasks (task) VALUES (?)",
             newTask
           );
           console.log("Added new task");
         }
-        const result = await db.sql`SELECT * FROM tasks`;
+        const result = await db.sql`USE DATABASE todo.sqlite; SELECT * FROM tasks`;
         console.log(result);
         setTaskList(result.map((task) => task.task));
       } catch (error) {
@@ -71,12 +72,7 @@ export default Home = ({ navigation, route }) => {
         data={taskList}
         keyExtractor={(item, index) => index}
         renderItem={({ item }) => (
-          <View style={styles.taskRow}>
-            <Text>{item}</Text>
-            <TouchableOpacity onPress={handleIconPress}>
-              <Icon name={checked ? "check-circle" : "circle-thin"} size={20} />
-            </TouchableOpacity>
-          </View>
+          <TaskRow item={item} handleIconPress={handleIconPress} />
         )}
       />
       <Button
@@ -106,14 +102,6 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 70,
     right: 20,
-  },
-  taskRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    fontSize: 16,
-    borderBottomColor: "gray",
-    borderBottomWidth: 1,
-    padding: 10,
   },
   taskList: {
     paddingTop: 40,
