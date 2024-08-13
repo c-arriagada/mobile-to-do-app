@@ -22,6 +22,12 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "faffd54b-fc15-4368-987a-a73b08640cfd"
+      }
+    },
+    "owner": "unatarajan"
   }
 }
