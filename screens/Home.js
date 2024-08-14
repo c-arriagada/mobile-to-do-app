@@ -42,7 +42,7 @@ export default Home = () => {
         newTask.isCompleted
       );
       console.log("added new task", addNewTask);
-      setTaskList(...taskList, addNewTask[0]);
+      setTaskList([...taskList, addNewTask[0]]);
     } catch (error) {
       console.error("Error adding task to database", error);
     }
