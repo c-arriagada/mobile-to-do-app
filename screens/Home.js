@@ -5,9 +5,11 @@ import Icon from "react-native-vector-icons/FontAwesome";
 import { DB_CONNECTION_STRING } from "@env";
 import { Database } from "@sqlitecloud/drivers";
 import TaskRow from "../components/TaskRow";
+import AddTaskModal from "../components/AddTaskModal";
 
-export default Home = ({ navigation, route }) => {
+export default Home = () => {
   const [taskList, setTaskList] = useState([]);
+  const [modalVisible, setModalVisible] = useState(false);
 
   const db = new Database({
     connectionstring: DB_CONNECTION_STRING,
@@ -18,27 +20,31 @@ export default Home = ({ navigation, route }) => {
   const options = { year: "numeric", month: "long", day: "numeric" };
   const formattedDate = today.toLocaleDateString("en-US", options);
 
-  // TODO: Check state when adding tasks, is adding new tasks twice
-  const newTask = route.params ? route.params.task : undefined;
-
   const handleIconPress = () => {
     // setChecked(!checked);
   };
 
   const getTasks = async () => {
     try {
-      if (newTask !== undefined) {
-        const addNewTask = await db.sql(
-          "USE DATABASE todo.sqlite; INSERT INTO tasks (title, isCompleted) VALUES (?, ?)",
-          newTask,
-          false
-        );
-      }
       const result =
         await db.sql`USE DATABASE todo.sqlite; SELECT * FROM tasks`;
       setTaskList(result);
     } catch (error) {
       console.error("Error getting tasks", error);
+    }
+  };
+
+  const addTask = async (newTask) => {
+    try {
+      const addNewTask = await db.sql(
+        "USE DATABASE todo.sqlite; INSERT INTO tasks (title, isCompleted) VALUES (?, ?) RETURNING *",
+        newTask.title,
+        newTask.isCompleted
+      );
+      console.log("added new task", addNewTask);
+      setTaskList(...taskList, addNewTask[0]);
+    } catch (error) {
+      console.error("Error adding task to database", error);
     }
   };
 
@@ -65,16 +71,13 @@ export default Home = ({ navigation, route }) => {
         if (result === "OK") {
           console.log("Successfully created table");
         }
+        getTasks();
       } catch (error) {
         console.error("Error creating table", error);
       }
     }
     createTable();
   }, []);
-
-  useEffect(() => {
-    getTasks();
-  }, [newTask]);
 
   const handleDelete = (taskId) => {
     Alert.alert(
@@ -113,11 +116,16 @@ export default Home = ({ navigation, route }) => {
       <Button
         style={styles.button}
         onPress={() => {
-          navigation.navigate("Add Task");
+          setModalVisible(true);
         }}
       >
         <Icon name="plus" color={"white"} />
       </Button>
+      <AddTaskModal
+        modalVisible={modalVisible}
+        addTask={addTask}
+        setModalVisible={setModalVisible}
+      />
     </View>
   );
 };
