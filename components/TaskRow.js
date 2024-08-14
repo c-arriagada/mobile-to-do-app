@@ -29,7 +29,11 @@ export default TaskRow = ({ task, updateTask, handleDelete }) => {
   return (
     <Swipeable renderLeftActions={renderLeftActions}>
       <View style={styles.taskRow}>
-        <Text>{title}</Text>
+        {checked === 0 ? (
+          <Text style={styles.text}>{title}</Text>
+        ) : (
+          <Text style={styles.strikethroughText}>{title}</Text>
+        )}
         <TouchableOpacity onPress={handleIconPress}>
           <Icon
             name={isCompleted === 1 ? "check-circle" : "circle-thin"}
@@ -63,5 +67,13 @@ const styles = StyleSheet.create({
   },
   deleteButtonText: {
     color: "white",
+  },
+  text: {
+    fontSize: 16,
+  },
+  strikethroughText: {
+    textDecorationLine: "line-through",
+    textDecorationColor: "#6BA2EA",
+    fontSize: 16,
   },
 });
