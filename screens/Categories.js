@@ -1,6 +1,14 @@
 import React, { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
-import { Avatar, Card, Text } from 'react-native-paper';
+import {
+  Avatar,
+  Card,
+  Text,
+  Modal,
+  Portal,
+  Button,
+  TextInput,
+} from 'react-native-paper';
 
 const Categories = ({ navigation }) => {
   const today = new Date();
@@ -21,52 +29,77 @@ const Categories = ({ navigation }) => {
 
   const [moreCategories, setMoreCategories] = useState(['Work', 'Personal']);
 
-  function addNewCategory(newCategory) {
-    setMoreCategories([...moreCategories, newCategory]);
+  const [category, setCategory] = useState('');
+  const [visible, setVisible] = React.useState(false);
+
+  const showModal = () => setVisible(true);
+  const hideModal = () => setVisible(false);
+
+  function handleAddCategory() {
+    if (category) {
+      setMoreCategories([...moreCategories, category]);
+    }
+    setCategory('');
+    hideModal();
   }
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Text variant="bodyLarge" style={[styles.content, styles.text]}>
-        {days[dayIndex]}
-      </Text>
-      <Text
-        variant="headlineSmall"
-        style={[
-          styles.content,
-          {
-            color: '#000',
-          },
-        ]}
-      >
-        {monthDate}
-      </Text>
-      <View style={styles.cardRow}>
-        <Card
-          style={styles.card}
-          onPress={() => navigation.navigate('Home')}
-          mode="contained"
+    <>
+      <Portal>
+        <Modal
+          visible={visible}
+          onDismiss={hideModal}
+          style={{ backgroundColor: 'white', padding: 20 }}
         >
-          <Card.Title
-            left={(props) => (
-              <Avatar.Icon
-                {...props}
-                icon="inbox-outline"
-                color={styles.icon.color}
-                style={styles.icon}
-              />
-            )}
+          <TextInput
+            style={styles.textInput}
+            label="Enter a new category"
+            value={category}
+            onChangeText={(category) => setCategory(category)}
+            keyboardType="default"
+            activeUnderlineColor="#6ba2ea"
+            underlineColor="none"
+            activeOutlineColor="#fff"
+            outlineColor="none"
           />
-          <Card.Content>
-            <Text variant="bodyMedium" style={styles.text}>
-              Inbox
-            </Text>
-          </Card.Content>
-        </Card>
-
-        {moreCategories.map((category, index) => (
+          <Button
+            style={styles.button}
+            buttonColor={styles.button.backgroundColor}
+            textColor={styles.button.color}
+            onPress={handleAddCategory}
+          >
+            Add
+          </Button>
+        </Modal>
+      </Portal>
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={styles.content}
+      >
+        <Text
+          variant="bodyLarge"
+          style={[
+            styles.content,
+            {
+              color: '#6b7280',
+            },
+          ]}
+        >
+          {days[dayIndex]}
+        </Text>
+        <Text
+          variant="headlineSmall"
+          style={[
+            styles.content,
+            {
+              color: '#000',
+            },
+          ]}
+        >
+          {monthDate}
+        </Text>
+        <View style={styles.cardRow}>
           <Card
-            key={index}
             style={styles.card}
             onPress={() => navigation.navigate('Home')}
             mode="contained"
@@ -75,45 +108,61 @@ const Categories = ({ navigation }) => {
               left={(props) => (
                 <Avatar.Icon
                   {...props}
-                  icon="tag-outline"
+                  icon="inbox-outline"
                   color={styles.icon.color}
                   style={styles.icon}
                 />
               )}
             />
-            <Card.Content>
-              <Text variant="bodyMedium" style={styles.text}>
+
+            <Text variant="bodyMedium" style={styles.text}>
+              Inbox
+            </Text>
+          </Card>
+
+          {moreCategories.map((category, index) => (
+            <Card
+              key={index}
+              style={styles.card}
+              onPress={() => navigation.navigate('Home')}
+              mode="contained"
+            >
+              <Card.Title
+                left={(props) => (
+                  <Avatar.Icon
+                    {...props}
+                    icon="tag-outline"
+                    color={styles.icon.color}
+                    style={styles.icon}
+                  />
+                )}
+              />
+
+              <Text variant="bodyMedium" numberOfLines={1} style={styles.text}>
                 {category}
               </Text>
-            </Card.Content>
-          </Card>
-        ))}
+            </Card>
+          ))}
 
-        <Card
-          style={styles.addCard}
-          onPress={() =>
-            navigation.navigate('Add Category', { addNewCategory })
-          }
-          mode="contained"
-        >
-          <Card.Title
-            left={(props) => (
-              <Avatar.Icon
-                {...props}
-                icon="plus-circle-outline"
-                color={styles.addIcon.color}
-                style={styles.addIcon}
-              />
-            )}
-          />
-          <Card.Content>
-            <Text variant="bodyMedium" style={styles.hiddenText}>
-              Add a Category
+          <Card style={styles.addCard} onPress={showModal} mode="contained">
+            <Card.Title
+              left={(props) => (
+                <Avatar.Icon
+                  {...props}
+                  icon="plus-circle-outline"
+                  color={styles.addIcon.color}
+                  style={styles.addIcon}
+                />
+              )}
+            />
+
+            <Text variant="bodyMedium" style={styles.text}>
+              {' '}
             </Text>
-          </Card.Content>
-        </Card>
-      </View>
-    </ScrollView>
+          </Card>
+        </View>
+      </ScrollView>
+    </>
   );
 };
 
@@ -134,16 +183,15 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: '#cfe2f8',
     margin: 5,
-    flex: 1,
-    maxWidth: '48%',
-    minWidth: '47%',
+    width: '47%',
   },
   addCard: {
     backgroundColor: '#fff',
-    border: 'dashed #6BA2EA',
     margin: 5,
-    flex: 1,
-    maxWidth: '48%',
+    borderWidth: 1,
+    borderStyle: 'dashed',
+    borderColor: '#6BA2EA',
+    width: '47%',
   },
   icon: {
     backgroundColor: '#cfe2f8',
@@ -155,10 +203,15 @@ const styles = StyleSheet.create({
   },
   text: {
     color: '#6b7280',
-    paddingLeft: 10,
+    padding: 15,
   },
-  hiddenText: {
-    visibility: 'hidden',
+  button: {
+    borderRadius: 'none',
+    backgroundColor: '#b2cae9',
+    color: '#000',
+  },
+  textInput: {
+    backgroundColor: '#f0f5fd',
   },
 });
 
