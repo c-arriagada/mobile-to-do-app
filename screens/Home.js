@@ -23,7 +23,7 @@ export default Home = () => {
   const updateTask = async (completedStatus, taskId) => {
     try {
       const task = await db.sql(
-        "USE DATABASE todo.sqlite; UPDATE tasks SET isCompleted=? WHERE id=? RETURNING *",
+        "UPDATE tasks SET isCompleted=? WHERE id=? RETURNING *",
         completedStatus,
         taskId
       );
@@ -36,7 +36,7 @@ export default Home = () => {
   const getTasks = async () => {
     try {
       const result =
-        await db.sql`USE DATABASE todo.sqlite; SELECT * FROM tasks`;
+        await db.sql`SELECT * FROM tasks`;
       setTaskList(result);
     } catch (error) {
       console.error("Error getting tasks", error);
@@ -46,7 +46,7 @@ export default Home = () => {
   const addTask = async (newTask) => {
     try {
       const addNewTask = await db.sql(
-        "USE DATABASE todo.sqlite; INSERT INTO tasks (title, isCompleted) VALUES (?, ?) RETURNING *",
+        "INSERT INTO tasks (title, isCompleted) VALUES (?, ?) RETURNING *",
         newTask.title,
         newTask.isCompleted
       );
@@ -59,7 +59,7 @@ export default Home = () => {
   const deleteTask = async (taskId) => {
     try {
       const result = await db.sql(
-        "USE DATABASE todo.sqlite; DELETE FROM tasks WHERE id=?",
+        "DELETE FROM tasks WHERE id=?",
         taskId
       );
       console.log(`deleted ${result[0].TOTAL_CHANGES} task`);
@@ -73,7 +73,7 @@ export default Home = () => {
     async function createTable() {
       try {
         const result = await db.sql(
-          "USE DATABASE todo.sqlite; CREATE TABLE IF NOT EXISTS tasks (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL, isCompleted INT NOT NULL);"
+          "CREATE TABLE IF NOT EXISTS tasks (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL, isCompleted INT NOT NULL);"
         );
 
         if (result === "OK") {
@@ -102,7 +102,6 @@ export default Home = () => {
           style: "destructive",
         },
       ],
-      { cancelable: true } // Allows the alert to be dismissed by clicking outside of it
     );
   };
 
@@ -147,6 +146,7 @@ const styles = StyleSheet.create({
   date: {
     color: "gray",
     marginTop: 50,
+    fontSize:16
   },
   button: {
     backgroundColor: "#6BA2EA",

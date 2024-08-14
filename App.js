@@ -12,15 +12,15 @@ export default function App() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <NavigationContainer>
-          <PaperProvider>
-            <Stack.Navigator>
-              <Stack.Screen name="Cover" component={Cover} />
-              <Stack.Screen name="Home" component={Home} />
-              <Stack.Group screenOptions={{ presentation: "modal" }}>
-                <Stack.Screen name="Add Task" component={AddTaskModal} />
-              </Stack.Group>
-            </Stack.Navigator>
-          </PaperProvider>
+        <PaperProvider>
+          <Stack.Navigator>
+            <Stack.Screen name="Cover" component={Cover} />
+            <Stack.Screen name="Home" component={Home} />
+            <Stack.Group screenOptions={{ presentation: "modal" }}>
+              <Stack.Screen name="Add Task" component={AddTaskModal} />
+            </Stack.Group>
+          </Stack.Navigator>
+        </PaperProvider>
       </NavigationContainer>
     </GestureHandlerRootView>
   );

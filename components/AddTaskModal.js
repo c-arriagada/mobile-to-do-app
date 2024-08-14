@@ -1,13 +1,23 @@
 import React, { useState } from "react";
-import { View, StyleSheet, Alert } from "react-native";
+import { View, StyleSheet, Alert, Platform } from "react-native";
 import { TextInput, Button, Modal } from "react-native-paper";
 import Icon from "react-native-vector-icons/AntDesign";
 
 export default AddTaskModal = ({ modalVisible, addTask, setModalVisible }) => {
-  const [task, setTask] = useState({});
+  const [taskTitle, setTaskTitle] = useState("");
 
   const closeModal = () => {
     setModalVisible(false);
+  };
+
+  const handleAddTask = () => {
+    if (taskTitle.trim()) {
+      addTask({ title: taskTitle.trim(), isCompleted: false });
+      setTaskTitle("");
+      setModalVisible(false);
+    } else {
+      Alert.alert("Please add a new task.");
+    }
   };
 
   return (
@@ -18,26 +28,23 @@ export default AddTaskModal = ({ modalVisible, addTask, setModalVisible }) => {
       <View style={styles.newTaskBox}>
         <TextInput
           mode="flat"
-          style={styles.textInput}
+          style={[
+            styles.textInput,
+            Platform.OS === "web" && {
+              boxShadow: "none",
+              border: "none",
+              outline: "none",
+            },
+          ]}
+          contentStyle={styles.textInputContent}
           underlineColor="transparent"
           activeUnderlineColor="#6BA2EA"
-          value={task}
-          onChangeText={(task) => setTask({ title: task, isCompleted: false })}
-          placeholder="add a new task"
+          value={taskTitle}
+          onChangeText={setTaskTitle}
+          placeholder="Add a new task"
           keyboardType="default"
         />
-        <Button
-          style={styles.button}
-          onPress={() => {
-            if (task?.title) {
-              addTask(task);
-              setTask({})
-              setModalVisible(false);
-            } else {
-              Alert.alert("Please add a new task.");
-            }
-          }}
-        >
+        <Button style={styles.button} onPress={handleAddTask}>
           <Icon name="enter" size={20} color="gray"></Icon>
         </Button>
       </View>
@@ -61,8 +68,12 @@ const styles = StyleSheet.create({
   textInput: {
     width: "80%",
     backgroundColor: "transparent",
-    borderWidth: 0,
     height: 50,
+  },
+  textInputContent: {
+    backgroundColor: "transparennt",
+    borderWidth: 0,
+    paddingLeft: 10,
   },
   button: {
     height: 50,
@@ -74,5 +85,6 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     bottom: 230,
     left: -10,
+    zIndex: 1,
   },
 });
