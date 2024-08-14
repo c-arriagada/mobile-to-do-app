@@ -20,8 +20,17 @@ export default Home = () => {
   const options = { year: "numeric", month: "long", day: "numeric" };
   const formattedDate = today.toLocaleDateString("en-US", options);
 
-  const handleIconPress = () => {
-    // setChecked(!checked);
+  const updateTask = async (completedStatus, taskId) => {
+    try {
+      const task = await db.sql(
+        "USE DATABASE todo.sqlite; UPDATE tasks SET isCompleted=? WHERE id=? RETURNING *",
+        completedStatus,
+        taskId
+      );
+      getTasks();
+    } catch (error) {
+      console.error("Error updating tasks", error);
+    }
   };
 
   const getTasks = async () => {
@@ -41,7 +50,6 @@ export default Home = () => {
         newTask.title,
         newTask.isCompleted
       );
-      console.log("added new task", addNewTask);
       setTaskList([...taskList, addNewTask[0]]);
     } catch (error) {
       console.error("Error adding task to database", error);
@@ -107,8 +115,8 @@ export default Home = () => {
         keyExtractor={(item, index) => index}
         renderItem={({ item }) => (
           <TaskRow
-            item={item}
-            handleIconPress={handleIconPress}
+            task={item}
+            updateTask={updateTask}
             handleDelete={handleDelete}
           />
         )}

@@ -3,7 +3,7 @@ import { View, StyleSheet } from "react-native";
 import { TextInput, Button, Modal } from "react-native-paper";
 import Icon from "react-native-vector-icons/AntDesign";
 
-export default AddTaskModal = ({modalVisible, addTask, setModalVisible}) => {
+export default AddTaskModal = ({ modalVisible, addTask, setModalVisible }) => {
   const [task, setTask] = useState({});
 
   return (
@@ -13,15 +13,15 @@ export default AddTaskModal = ({modalVisible, addTask, setModalVisible}) => {
           underlineColor="transparent"
           style={styles.textInput}
           value={task}
-          onChangeText={(task) => setTask({title: task, isCompleted: false})}
+          onChangeText={(task) => setTask({ title: task, isCompleted: false })}
           placeholder="add a new task"
-          // keyboardType="default" // TODO: test keyboard in iphone
+          keyboardType="default"
         />
         <Button
           style={styles.button}
           onPress={() => {
-            addTask(task)
-            setModalVisible(false)
+            addTask(task);
+            setModalVisible(false);
           }}
         >
           <Icon name="enter"></Icon>

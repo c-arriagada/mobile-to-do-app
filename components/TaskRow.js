@@ -3,16 +3,22 @@ import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { Swipeable } from "react-native-gesture-handler";
 
-export default TaskRow = ({ item, handleIconPress, handleDelete }) => {
-  const { id, title, isCompleted } = item;
+export default TaskRow = ({ task, updateTask, handleDelete }) => {
+  const { id, title, isCompleted } = task;
   const [checked, setChecked] = useState(isCompleted);
+
+  const handleIconPress = () => {
+    const newCompletedStatus = checked === 1 ? 0 : 1;
+    setChecked(newCompletedStatus);
+    updateTask(newCompletedStatus, id);
+  };
 
   const renderLeftActions = () => {
     return (
       <TouchableOpacity
         style={styles.deleteButton}
         onPress={() => {
-            handleDelete(id)
+          handleDelete(id);
         }}
       >
         <Text style={styles.deleteButtonText}>Delete</Text>
