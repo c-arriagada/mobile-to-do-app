@@ -6,7 +6,6 @@ import Home from "./screens/Home";
 import AddTaskModal from "./components/AddTaskModal";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import Categories from './screens/Categories';
-import { TaskProvider } from './TaskContext';
 
 export default function App() {
   const Stack = createStackNavigator();
