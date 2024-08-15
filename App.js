@@ -1,18 +1,18 @@
-import { PaperProvider } from 'react-native-paper';
-import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
-import Cover from './screens/Cover';
+import { PaperProvider } from "react-native-paper";
+import { NavigationContainer } from "@react-navigation/native";
+import { createStackNavigator } from "@react-navigation/stack";
+import Cover from "./screens/Cover";
+import Home from "./screens/Home";
+import AddTaskModal from "./components/AddTaskModal";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import Categories from './screens/Categories';
-import Home from './screens/Home';
-import AddTaskModal from './components/AddTaskModal';
-import { TaskProvider } from './TaskContext';
 
 export default function App() {
   const Stack = createStackNavigator();
 
   return (
-    <NavigationContainer>
-      <TaskProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <NavigationContainer>
         <PaperProvider>
           <Stack.Navigator>
             <Stack.Screen name="Cover" component={Cover} />
@@ -23,7 +23,7 @@ export default function App() {
             </Stack.Group>
           </Stack.Navigator>
         </PaperProvider>
-      </TaskProvider>
-    </NavigationContainer>
+      </NavigationContainer>
+    </GestureHandlerRootView>
   );
 }

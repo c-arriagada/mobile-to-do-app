@@ -1,28 +1,109 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { View, Text, StyleSheet, FlatList } from "react-native";
-import { TouchableOpacity } from "react-native-gesture-handler";
+import React, { useState, useEffect } from "react";
+import { View, Text, StyleSheet, FlatList, Alert } from "react-native";
 import { Button } from "react-native-paper";
 import Icon from "react-native-vector-icons/FontAwesome";
+import { DB_CONNECTION_STRING } from "@env";
+import { Database } from "@sqlitecloud/drivers";
+import TaskRow from "../components/TaskRow";
+import AddTaskModal from "../components/AddTaskModal";
 
-export default Home = ({ navigation, route }) => {
+export default Home = () => {
   const [taskList, setTaskList] = useState([]);
-  const [checked, setChecked] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+
+  const db = new Database({
+    connectionstring: DB_CONNECTION_STRING,
+    usewebsocket: true,
+  });
 
   const today = new Date();
   const options = { year: "numeric", month: "long", day: "numeric" };
   const formattedDate = today.toLocaleDateString("en-US", options);
 
-  const newTask = route.params ? route.params.task : undefined;
+  const updateTask = async (completedStatus, taskId) => {
+    try {
+      const task = await db.sql(
+        "UPDATE tasks SET isCompleted=? WHERE id=? RETURNING *",
+        completedStatus,
+        taskId
+      );
+      getTasks();
+    } catch (error) {
+      console.error("Error updating tasks", error);
+    }
+  };
 
-  const handleIconPress = () => {
-    setChecked(!checked);
+  const getTasks = async () => {
+    try {
+      const result =
+        await db.sql`SELECT * FROM tasks`;
+      setTaskList(result);
+    } catch (error) {
+      console.error("Error getting tasks", error);
+    }
+  };
+
+  const addTask = async (newTask) => {
+    try {
+      const addNewTask = await db.sql(
+        "INSERT INTO tasks (title, isCompleted) VALUES (?, ?) RETURNING *",
+        newTask.title,
+        newTask.isCompleted
+      );
+      setTaskList([...taskList, addNewTask[0]]);
+    } catch (error) {
+      console.error("Error adding task to database", error);
+    }
+  };
+
+  const deleteTask = async (taskId) => {
+    try {
+      const result = await db.sql(
+        "DELETE FROM tasks WHERE id=?",
+        taskId
+      );
+      console.log(`deleted ${result[0].TOTAL_CHANGES} task`);
+      getTasks();
+    } catch (error) {
+      console.error("Error deleting task", deleteTask);
+    }
   };
 
   useEffect(() => {
-    if (newTask) {
-      setTaskList([...taskList, newTask]);
+    async function createTable() {
+      try {
+        const result = await db.sql(
+          "CREATE TABLE IF NOT EXISTS tasks (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL, isCompleted INT NOT NULL);"
+        );
+
+        if (result === "OK") {
+          console.log("Successfully created table");
+        }
+        getTasks();
+      } catch (error) {
+        console.error("Error creating table", error);
+      }
     }
-  }, [newTask]);
+    createTable();
+  }, []);
+
+  const handleDelete = (taskId) => {
+    Alert.alert(
+      "Confirm Delete",
+      "Are you sure you want to delete this task?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Delete",
+          onPress: () => deleteTask(taskId),
+          style: "destructive",
+        },
+      ],
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -32,22 +113,26 @@ export default Home = ({ navigation, route }) => {
         data={taskList}
         keyExtractor={(item, index) => index}
         renderItem={({ item }) => (
-          <View style={styles.taskRow}>
-            <Text>{item}</Text>
-            <TouchableOpacity onPress={handleIconPress}>
-              <Icon name={checked ? "check-circle" : "circle-thin"} size={20} />
-            </TouchableOpacity>
-          </View>
+          <TaskRow
+            task={item}
+            updateTask={updateTask}
+            handleDelete={handleDelete}
+          />
         )}
       />
       <Button
         style={styles.button}
         onPress={() => {
-          navigation.navigate("Add Task");
+          setModalVisible(true);
         }}
       >
         <Icon name="plus" color={"white"} />
       </Button>
+      <AddTaskModal
+        modalVisible={modalVisible}
+        addTask={addTask}
+        setModalVisible={setModalVisible}
+      />
     </View>
   );
 };
@@ -61,20 +146,13 @@ const styles = StyleSheet.create({
   date: {
     color: "gray",
     marginTop: 50,
+    fontSize:16
   },
   button: {
     backgroundColor: "#6BA2EA",
     position: "absolute",
     bottom: 70,
     right: 20,
-  },
-  taskRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    fontSize: 16,
-    borderBottomColor: "gray",
-    borderBottomWidth: 1,
-    padding: 10,
   },
   taskList: {
     paddingTop: 40,
