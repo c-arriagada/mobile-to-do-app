@@ -69,24 +69,6 @@ export default Home = () => {
     }
   };
 
-  useEffect(() => {
-    async function createTable() {
-      try {
-        const result = await db.sql(
-          "CREATE TABLE IF NOT EXISTS tasks (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL, isCompleted INT NOT NULL);"
-        );
-
-        if (result === "OK") {
-          console.log("Successfully created table");
-        }
-        getTasks();
-      } catch (error) {
-        console.error("Error creating table", error);
-      }
-    }
-    createTable();
-  }, []);
-
   const handleDelete = (taskId) => {
     Alert.alert(
       "Confirm Delete",
