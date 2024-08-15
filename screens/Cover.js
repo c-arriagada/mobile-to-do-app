@@ -1,7 +1,7 @@
-import React from "react";
-import { StatusBar } from "expo-status-bar";
-import { View, Text, StyleSheet } from "react-native";
-import { Button } from "react-native-paper";
+import React from 'react';
+import { StatusBar } from 'expo-status-bar';
+import { View, Text, StyleSheet } from 'react-native';
+import { Button } from 'react-native-paper';
 
 export default Cover = ({ navigation }) => {
   return (
@@ -14,9 +14,7 @@ export default Cover = ({ navigation }) => {
         style={styles.button}
         buttonColor="#6BA2EA"
         textColor="white"
-        onPress={() => {
-          navigation.navigate("Home");
-        }}
+        onPress={() => navigation.navigate('Categories')}
       >
         Get started
       </Button>
@@ -28,19 +26,19 @@ export default Cover = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "flex-start",
-    justifyContent: "center",
+    backgroundColor: '#fff',
+    alignItems: 'flex-start',
+    justifyContent: 'center',
     paddingLeft: 15,
   },
   heading: {
-    fontWeight: "bold",
+    fontWeight: 'bold',
     fontSize: 40,
     marginBottom: 5,
   },
   button: {
-    position: "absolute",
-    bottom: 70, 
-    right: 20, 
+    position: 'absolute',
+    bottom: 70,
+    right: 20,
   },
 });

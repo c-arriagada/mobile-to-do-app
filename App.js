@@ -5,6 +5,8 @@ import Cover from "./screens/Cover";
 import Home from "./screens/Home";
 import AddTaskModal from "./components/AddTaskModal";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import Categories from './screens/Categories';
+import { TaskProvider } from './TaskContext';
 
 export default function App() {
   const Stack = createStackNavigator();
@@ -15,8 +17,9 @@ export default function App() {
         <PaperProvider>
           <Stack.Navigator>
             <Stack.Screen name="Cover" component={Cover} />
+            <Stack.Screen name="Categories" component={Categories} />
             <Stack.Screen name="Home" component={Home} />
-            <Stack.Group screenOptions={{ presentation: "modal" }}>
+            <Stack.Group screenOptions={{ presentation: 'modal' }}>
               <Stack.Screen name="Add Task" component={AddTaskModal} />
             </Stack.Group>
           </Stack.Navigator>
