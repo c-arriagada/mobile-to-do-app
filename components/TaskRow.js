@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { Swipeable } from "react-native-gesture-handler";
@@ -6,6 +6,7 @@ import { Swipeable } from "react-native-gesture-handler";
 export default TaskRow = ({ task, updateTask, handleDelete }) => {
   const { id, title, isCompleted, tag_id, tag_name } = task;
   const [checked, setChecked] = useState(isCompleted);
+  const swipableRef = useRef(null)
 
   const handleIconPress = () => {
     const newCompletedStatus = checked === 1 ? 0 : 1;
@@ -19,6 +20,9 @@ export default TaskRow = ({ task, updateTask, handleDelete }) => {
         style={styles.deleteButton}
         onPress={() => {
           handleDelete(id);
+          if(swipableRef.current) {
+            swipableRef.current.close();
+          }
         }}
       >
         <Text style={styles.deleteButtonText}>Delete</Text>
@@ -27,7 +31,7 @@ export default TaskRow = ({ task, updateTask, handleDelete }) => {
   };
 
   return (
-    <Swipeable renderLeftActions={renderLeftActions}>
+    <Swipeable renderLeftActions={renderLeftActions} ref={swipableRef}>
       <View style={styles.taskRow}>
         <View style={styles.taskAndTag}>
           {checked === 0 ? (

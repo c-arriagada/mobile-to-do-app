@@ -49,19 +49,28 @@ export default Home = ({ route }) => {
 
   const addTaskTag = async (newTask, tag) => {
     try {
-      const addNewTask = await db.sql(
-        "INSERT INTO tasks (title, isCompleted) VALUES (?, ?) RETURNING *",
-        newTask.title,
-        newTask.isCompleted
-      );
-      addNewTask[0].tag_id = tag.id;
-      addNewTask[0].tag_name = tag.name;
-      setTaskList([...taskList, addNewTask[0]]);
-      await db.sql(
-        "INSERT INTO tasks_tags (task_id, tag_id) VALUES (?, ?)",
-        addNewTask[0].id,
-        tag.id
-      );
+      if (tag.id) {
+        const addNewTask = await db.sql(
+          "INSERT INTO tasks (title, isCompleted) VALUES (?, ?) RETURNING *",
+          newTask.title,
+          newTask.isCompleted
+        );
+        addNewTask[0].tag_id = tag.id;
+        addNewTask[0].tag_name = tag.name;
+        setTaskList([...taskList, addNewTask[0]]);
+        await db.sql(
+          "INSERT INTO tasks_tags (task_id, tag_id) VALUES (?, ?)",
+          addNewTask[0].id,
+          tag.id
+        );
+      } else {
+        const addNewTaskNoTag = await db.sql(
+          "INSERT INTO tasks (title, isCompleted) VALUES (?, ?) RETURNING *",
+          newTask.title,
+          newTask.isCompleted
+        );
+        setTaskList([...taskList, addNewTaskNoTag[0]]);
+      }
     } catch (error) {
       console.error("Error adding task to database", error);
     }
@@ -69,11 +78,12 @@ export default Home = ({ route }) => {
 
   const deleteTask = async (taskId) => {
     try {
+      await db.sql("DELETE FROM tasks_tags WHERE task_id=?", taskId)
       const result = await db.sql("DELETE FROM tasks WHERE id=?", taskId);
       console.log(`deleted ${result[0].TOTAL_CHANGES} task`);
       getTasks();
     } catch (error) {
-      console.error("Error deleting task", deleteTask);
+      console.error("Error deleting task", error);
     }
   };
 
