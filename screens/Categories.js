@@ -38,11 +38,35 @@ const Categories = ({ navigation }) => {
 
   function handleAddCategory() {
     if (category) {
+      addCategory();
       setMoreCategories([...moreCategories, category]);
     }
     setCategory("");
     hideModal();
   }
+
+  const addCategory = async () => {
+    try {
+      await db.sql("INSERT INTO tags (name) VALUES (?) RETURNING *", category);
+    } catch (error) {
+      console.error("Error adding category", error);
+    }
+  };
+
+  const getCategories = async () => {
+    try {
+      const tags = await db.sql("SELECT * FROM tags");
+      const filteredTags = tags.filter((tag) => {
+        tag.name !== "Work" || tag.name !== "Personal";
+      });
+      setMoreCategories([
+        ...moreCategories,
+        ...filteredTags.map((tag) => tag.name),
+      ]);
+    } catch (error) {
+      console.error("Error getting tags/categories", error);
+    }
+  };
 
   useEffect(() => {
     async function createTables() {
@@ -71,6 +95,7 @@ const Categories = ({ navigation }) => {
             "INSERT OR IGNORE INTO tags (name) VALUES (?)",
             "Personal"
           );
+          getCategories();
         }
       } catch (error) {
         console.error("Error creating tables", error);
