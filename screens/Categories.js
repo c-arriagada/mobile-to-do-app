@@ -9,8 +9,7 @@ import {
   Button,
   TextInput,
 } from "react-native-paper";
-import { DB_CONNECTION_STRING } from "@env";
-import { Database } from "@sqlitecloud/drivers";
+import db from "../db/dbConnection";
 
 const Categories = ({ navigation }) => {
   const today = new Date();
@@ -36,11 +35,6 @@ const Categories = ({ navigation }) => {
 
   const showModal = () => setVisible(true);
   const hideModal = () => setVisible(false);
-
-  const db = new Database({
-    connectionstring: DB_CONNECTION_STRING,
-    usewebsocket: true,
-  });
 
   function handleAddCategory() {
     if (category) {

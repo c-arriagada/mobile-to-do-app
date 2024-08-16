@@ -1,20 +1,14 @@
-import React, { useState, useEffect } from "react";
+import React, { useState} from "react";
 import { View, Text, StyleSheet, FlatList, Alert } from "react-native";
 import { Button } from "react-native-paper";
 import Icon from "react-native-vector-icons/FontAwesome";
-import { DB_CONNECTION_STRING } from "@env";
-import { Database } from "@sqlitecloud/drivers";
+import db from "../db/dbConnection"
 import TaskRow from "../components/TaskRow";
 import AddTaskModal from "../components/AddTaskModal";
 
 export default Home = () => {
   const [taskList, setTaskList] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
-
-  const db = new Database({
-    connectionstring: DB_CONNECTION_STRING,
-    usewebsocket: true,
-  });
 
   const today = new Date();
   const options = { year: "numeric", month: "long", day: "numeric" };
