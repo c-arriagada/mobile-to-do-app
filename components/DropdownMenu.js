@@ -1,40 +1,30 @@
-import React, { useState } from "react";
-import { View, FlatList, StyleSheet } from "react-native";
-import { Menu, Button } from "react-native-paper";
+import React from "react";
+import { View, StyleSheet } from "react-native";
+import RNPickerSelect from "react-native-picker-select";
 
-export default DropdownMenu = ({ tagsList, setSelectedTag }) => {
-  // const [tag, setTag] = useState("");
-  const [visible, setVisible] = useState(false);
+export default DropdownMenu = ({ tagsList, selectedTag, setSelectedTag }) => {
+  const TAGS = tagsList.map((tag) => {
+    return { label: tag.name, value: tag.name };
+  });
 
-  const openMenu = () => setVisible(true);
-  const closeMenu = () => setVisible(false);
+  const getTagId = (value) => {
+    const tagId = tagsList.filter((tag) => {
+      return tag.name === value;
+    });
+    return tagId[0]?.id;
+  };
 
   return (
     <View style={styles.container}>
-      <Menu
-        style={styles.menu}
-        visible={visible}
-        onDismiss={closeMenu}
-        anchor={
-          <Button style={styles.button} onPress={openMenu}>
-            Add a tag
-          </Button>
+      <RNPickerSelect
+        items={TAGS}
+        onValueChange={(value) =>
+          setSelectedTag({ id: getTagId(value), name: value })
         }
-      >
-        <FlatList
-          data={tagsList}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <Menu.Item
-              style={styles.menuItem}
-              onPress={() => {
-                setSelectedTag(item);
-              }}
-              title={item.name}
-            />
-          )}
-        />
-      </Menu>
+        placeholder={{ label: "Select a category", value: null }}
+        value={selectedTag}
+        style={pickerSelectStyles}
+      />
     </View>
   );
 };
@@ -44,17 +34,34 @@ const styles = StyleSheet.create({
     borderColor: "lightgray",
     borderWidth: 1,
     borderRadius: 5,
-    marginTop: 10,
-    height: 50,
-    justifyContent: "center",
-  },
-  button: {
-    justifyContent: "center",
-    alignItems: "center",
-    fontSize: 20,
-    color: "white",
-  },
-  menuItem: {
     backgroundColor: "#f0f5fd",
+    marginBottom: 10,
+  },
+});
+
+const pickerSelectStyles = StyleSheet.create({
+  inputIOS: {
+    height: 50,
+    fontSize: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 10,
+    borderWidth: 1,
+    borderColor: "lightgray",
+    borderRadius: 4,
+    color: "black",
+    backgroundColor: "#f0f5fd",
+    paddingRight: 30,
+  },
+  inputAndroid: {
+    height: 50,
+    fontSize: 16,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    borderWidth: 1,
+    borderColor: "lightgray",
+    borderRadius: 4,
+    color: "black",
+    backgroundColor: "#f0f5fd",
+    paddingRight: 30,
   },
 });
