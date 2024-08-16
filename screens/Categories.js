@@ -57,7 +57,7 @@ const Categories = ({ navigation }) => {
     try {
       const tags = await db.sql("SELECT * FROM tags");
       const filteredTags = tags.filter((tag) => {
-        tag.name !== "Work" || tag.name !== "Personal";
+        return tag["name"] !== "Work" && tag["name"] !== "Personal";
       });
       setMoreCategories([
         ...moreCategories,
@@ -162,7 +162,7 @@ const Categories = ({ navigation }) => {
         <View style={styles.cardRow}>
           <Card
             style={styles.card}
-            onPress={() => navigation.navigate("Home")}
+            onPress={() => navigation.navigate("Tasks")}
             mode="contained"
           >
             <Card.Title
@@ -185,7 +185,7 @@ const Categories = ({ navigation }) => {
             <Card
               key={index}
               style={styles.card}
-              onPress={() => navigation.navigate("Home")}
+              onPress={() => navigation.navigate("Tasks", {category})}
               mode="contained"
             >
               <Card.Title

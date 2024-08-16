@@ -6,9 +6,11 @@ import db from "../db/dbConnection";
 import TaskRow from "../components/TaskRow";
 import AddTaskModal from "../components/AddTaskModal";
 
-export default Home = () => {
+export default Home = ({ route }) => {
   const [taskList, setTaskList] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
+
+  const tag = route.params?.category;
 
   const today = new Date();
   const options = { year: "numeric", month: "long", day: "numeric" };
@@ -29,8 +31,17 @@ export default Home = () => {
 
   const getTasks = async () => {
     try {
-      const result = await db.sql`SELECT tasks.*, tags.id AS tag_id, tags.name AS tag_name FROM tasks JOIN tasks_tags ON tasks.id = tasks_tags.task_id JOIN tags ON tags.id = tasks_tags.tag_id`
-      setTaskList(result);
+      if (tag) {
+        const result = await db.sql(
+          "SELECT tasks.*, tags.id AS tag_id, tags.name AS tag_name FROM tasks JOIN tasks_tags ON tasks.id = tasks_tags.task_id JOIN tags ON tags.id = tasks_tags.tag_id WHERE tag_name=?",
+          tag
+        );
+        setTaskList(result);
+      } else {
+        const result =
+          await db.sql`SELECT tasks.*, tags.id AS tag_id, tags.name AS tag_name FROM tasks JOIN tasks_tags ON tasks.id = tasks_tags.task_id JOIN tags ON tags.id = tasks_tags.tag_id`;
+        setTaskList(result);
+      }
     } catch (error) {
       console.error("Error getting tasks", error);
     }
@@ -43,8 +54,8 @@ export default Home = () => {
         newTask.title,
         newTask.isCompleted
       );
-      addNewTask[0].tag_id = tag.id
-      addNewTask[0].tag_name = tag.name
+      addNewTask[0].tag_id = tag.id;
+      addNewTask[0].tag_name = tag.name;
       setTaskList([...taskList, addNewTask[0]]);
       await db.sql(
         "INSERT INTO tasks_tags (task_id, tag_id) VALUES (?, ?)",
