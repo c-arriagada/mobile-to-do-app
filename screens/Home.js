@@ -32,12 +32,12 @@ export default Home = () => {
       const result =
         await db.sql`SELECT * FROM tasks`;
       setTaskList(result);
-    } catch (error) {
+    } catch (error) { 
       console.error("Error getting tasks", error);
     }
   };
 
-  const addTask = async (newTask) => {
+  const addTaskTag = async (newTask, tag) => {
     try {
       const addNewTask = await db.sql(
         "INSERT INTO tasks (title, isCompleted) VALUES (?, ?) RETURNING *",
@@ -45,6 +45,7 @@ export default Home = () => {
         newTask.isCompleted
       );
       setTaskList([...taskList, addNewTask[0]]);
+      await db.sql("INSERT INTO tasks_tags (task_id, tag_id) VALUES (?, ?)", addNewTask[0].id, tag.id)
     } catch (error) {
       console.error("Error adding task to database", error);
     }
@@ -106,7 +107,7 @@ export default Home = () => {
       </Button>
       <AddTaskModal
         modalVisible={modalVisible}
-        addTask={addTask}
+        addTaskTag={addTaskTag}
         setModalVisible={setModalVisible}
       />
     </View>
