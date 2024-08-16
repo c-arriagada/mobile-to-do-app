@@ -1,8 +1,8 @@
-import React, { useState} from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, FlatList, Alert } from "react-native";
 import { Button } from "react-native-paper";
 import Icon from "react-native-vector-icons/FontAwesome";
-import db from "../db/dbConnection"
+import db from "../db/dbConnection";
 import TaskRow from "../components/TaskRow";
 import AddTaskModal from "../components/AddTaskModal";
 
@@ -29,10 +29,9 @@ export default Home = () => {
 
   const getTasks = async () => {
     try {
-      const result =
-        await db.sql`SELECT * FROM tasks`;
+      const result = await db.sql`SELECT tasks.*, tags.id AS tag_id, tags.name AS tag_name FROM tasks JOIN tasks_tags ON tasks.id = tasks_tags.task_id JOIN tags ON tags.id = tasks_tags.tag_id`
       setTaskList(result);
-    } catch (error) { 
+    } catch (error) {
       console.error("Error getting tasks", error);
     }
   };
@@ -44,8 +43,14 @@ export default Home = () => {
         newTask.title,
         newTask.isCompleted
       );
+      addNewTask[0].tag_id = tag.id
+      addNewTask[0].tag_name = tag.name
       setTaskList([...taskList, addNewTask[0]]);
-      await db.sql("INSERT INTO tasks_tags (task_id, tag_id) VALUES (?, ?)", addNewTask[0].id, tag.id)
+      await db.sql(
+        "INSERT INTO tasks_tags (task_id, tag_id) VALUES (?, ?)",
+        addNewTask[0].id,
+        tag.id
+      );
     } catch (error) {
       console.error("Error adding task to database", error);
     }
@@ -53,10 +58,7 @@ export default Home = () => {
 
   const deleteTask = async (taskId) => {
     try {
-      const result = await db.sql(
-        "DELETE FROM tasks WHERE id=?",
-        taskId
-      );
+      const result = await db.sql("DELETE FROM tasks WHERE id=?", taskId);
       console.log(`deleted ${result[0].TOTAL_CHANGES} task`);
       getTasks();
     } catch (error) {
@@ -78,9 +80,13 @@ export default Home = () => {
           onPress: () => deleteTask(taskId),
           style: "destructive",
         },
-      ],
+      ]
     );
   };
+
+  useEffect(() => {
+    getTasks();
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -123,7 +129,7 @@ const styles = StyleSheet.create({
   date: {
     color: "gray",
     marginTop: 50,
-    fontSize:16
+    fontSize: 16,
   },
   button: {
     backgroundColor: "#6BA2EA",

@@ -4,7 +4,7 @@ import Icon from "react-native-vector-icons/FontAwesome";
 import { Swipeable } from "react-native-gesture-handler";
 
 export default TaskRow = ({ task, updateTask, handleDelete }) => {
-  const { id, title, isCompleted } = task;
+  const { id, title, isCompleted, tag_id, tag_name } = task;
   const [checked, setChecked] = useState(isCompleted);
 
   const handleIconPress = () => {
@@ -29,11 +29,14 @@ export default TaskRow = ({ task, updateTask, handleDelete }) => {
   return (
     <Swipeable renderLeftActions={renderLeftActions}>
       <View style={styles.taskRow}>
-        {checked === 0 ? (
-          <Text style={styles.text}>{title}</Text>
-        ) : (
-          <Text style={styles.strikethroughText}>{title}</Text>
-        )}
+        <View style={styles.taskAndTag}>
+          {checked === 0 ? (
+            <Text style={styles.text}>{title}</Text>
+          ) : (
+            <Text style={styles.strikethroughText}>{title}</Text>
+          )}
+          <Text style={styles.tag}>{tag_name}</Text>
+        </View>
         <TouchableOpacity onPress={handleIconPress}>
           <Icon
             name={isCompleted === 1 ? "check-circle" : "circle-thin"}
@@ -76,4 +79,12 @@ const styles = StyleSheet.create({
     textDecorationColor: "#6BA2EA",
     fontSize: 16,
   },
+  tag: {
+    color: "gray",
+    fontSize: 12,
+    marginTop: 5
+  },
+  taskAndTag: {
+    flexDirection: "column"
+  }
 });
