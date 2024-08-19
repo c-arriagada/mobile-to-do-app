@@ -17,7 +17,7 @@ export default function App() {
           <Stack.Navigator>
             <Stack.Screen name="Cover" component={Cover} />
             <Stack.Screen name="Categories" component={Categories} />
-            <Stack.Screen name="Home" component={Home} />
+            <Stack.Screen name="Tasks" component={Home} />
             <Stack.Group screenOptions={{ presentation: 'modal' }}>
               <Stack.Screen name="Add Task" component={AddTaskModal} />
             </Stack.Group>

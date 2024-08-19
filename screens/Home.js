@@ -1,20 +1,23 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, FlatList, Alert } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  Alert,
+  Platform,
+} from "react-native";
 import { Button } from "react-native-paper";
 import Icon from "react-native-vector-icons/FontAwesome";
-import { DB_CONNECTION_STRING } from "@env";
-import { Database } from "@sqlitecloud/drivers";
+import db from "../db/dbConnection";
 import TaskRow from "../components/TaskRow";
 import AddTaskModal from "../components/AddTaskModal";
 
-export default Home = () => {
+export default Home = ({ route }) => {
   const [taskList, setTaskList] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
 
-  const db = new Database({
-    connectionstring: DB_CONNECTION_STRING,
-    usewebsocket: true,
-  });
+  const tag = route.params?.category;
 
   const today = new Date();
   const options = { year: "numeric", month: "long", day: "numeric" };
@@ -35,22 +38,46 @@ export default Home = () => {
 
   const getTasks = async () => {
     try {
-      const result =
-        await db.sql`SELECT * FROM tasks`;
-      setTaskList(result);
+      if (tag) {
+        const result = await db.sql(
+          "SELECT tasks.*, tags.id AS tag_id, tags.name AS tag_name FROM tasks JOIN tasks_tags ON tasks.id = tasks_tags.task_id JOIN tags ON tags.id = tasks_tags.tag_id WHERE tag_name=?",
+          tag
+        );
+        setTaskList(result);
+      } else {
+        const result =
+          await db.sql`SELECT tasks.*, tags.id AS tag_id, tags.name AS tag_name FROM tasks JOIN tasks_tags ON tasks.id = tasks_tags.task_id JOIN tags ON tags.id = tasks_tags.tag_id`;
+        setTaskList(result);
+      }
     } catch (error) {
       console.error("Error getting tasks", error);
     }
   };
 
-  const addTask = async (newTask) => {
+  const addTaskTag = async (newTask, tag) => {
     try {
-      const addNewTask = await db.sql(
-        "INSERT INTO tasks (title, isCompleted) VALUES (?, ?) RETURNING *",
-        newTask.title,
-        newTask.isCompleted
-      );
-      setTaskList([...taskList, addNewTask[0]]);
+      if (tag.id) {
+        const addNewTask = await db.sql(
+          "INSERT INTO tasks (title, isCompleted) VALUES (?, ?) RETURNING *",
+          newTask.title,
+          newTask.isCompleted
+        );
+        addNewTask[0].tag_id = tag.id;
+        addNewTask[0].tag_name = tag.name;
+        setTaskList([...taskList, addNewTask[0]]);
+        await db.sql(
+          "INSERT INTO tasks_tags (task_id, tag_id) VALUES (?, ?)",
+          addNewTask[0].id,
+          tag.id
+        );
+      } else {
+        const addNewTaskNoTag = await db.sql(
+          "INSERT INTO tasks (title, isCompleted) VALUES (?, ?) RETURNING *",
+          newTask.title,
+          newTask.isCompleted
+        );
+        setTaskList([...taskList, addNewTaskNoTag[0]]);
+      }
     } catch (error) {
       console.error("Error adding task to database", error);
     }
@@ -58,52 +85,46 @@ export default Home = () => {
 
   const deleteTask = async (taskId) => {
     try {
-      const result = await db.sql(
-        "DELETE FROM tasks WHERE id=?",
-        taskId
-      );
+      await db.sql("DELETE FROM tasks_tags WHERE task_id=?", taskId);
+      const result = await db.sql("DELETE FROM tasks WHERE id=?", taskId);
       console.log(`deleted ${result[0].TOTAL_CHANGES} task`);
       getTasks();
     } catch (error) {
-      console.error("Error deleting task", deleteTask);
+      console.error("Error deleting task", error);
+    }
+  };
+
+  const handleDelete = (taskId) => {
+    console.log(taskId);
+    if (Platform.OS === "web") {
+      const confirmDelete = window.confirm(
+        "Are you sure you want to delete this task?"
+      );
+      if (confirmDelete) {
+        deleteTask(taskId);
+      }
+    } else {
+      Alert.alert(
+        "Confirm Delete",
+        "Are you sure you want to delete this task?",
+        [
+          {
+            text: "Cancel",
+            style: "cancel",
+          },
+          {
+            text: "Delete",
+            onPress: () => deleteTask(taskId),
+            style: "destructive",
+          },
+        ]
+      );
     }
   };
 
   useEffect(() => {
-    async function createTable() {
-      try {
-        const result = await db.sql(
-          "CREATE TABLE IF NOT EXISTS tasks (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL, isCompleted INT NOT NULL);"
-        );
-
-        if (result === "OK") {
-          console.log("Successfully created table");
-        }
-        getTasks();
-      } catch (error) {
-        console.error("Error creating table", error);
-      }
-    }
-    createTable();
+    getTasks();
   }, []);
-
-  const handleDelete = (taskId) => {
-    Alert.alert(
-      "Confirm Delete",
-      "Are you sure you want to delete this task?",
-      [
-        {
-          text: "Cancel",
-          style: "cancel",
-        },
-        {
-          text: "Delete",
-          onPress: () => deleteTask(taskId),
-          style: "destructive",
-        },
-      ],
-    );
-  };
 
   return (
     <View style={styles.container}>
@@ -130,7 +151,7 @@ export default Home = () => {
       </Button>
       <AddTaskModal
         modalVisible={modalVisible}
-        addTask={addTask}
+        addTaskTag={addTaskTag}
         setModalVisible={setModalVisible}
       />
     </View>
@@ -146,7 +167,7 @@ const styles = StyleSheet.create({
   date: {
     color: "gray",
     marginTop: 50,
-    fontSize:16
+    fontSize: 16,
   },
   button: {
     backgroundColor: "#6BA2EA",

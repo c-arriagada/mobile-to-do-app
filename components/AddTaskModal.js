@@ -1,10 +1,18 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, StyleSheet, Alert, Platform } from "react-native";
 import { TextInput, Button, Modal } from "react-native-paper";
 import Icon from "react-native-vector-icons/AntDesign";
+import DropdownMenu from "./DropdownMenu";
+import db from "../db/dbConnection";
 
-export default AddTaskModal = ({ modalVisible, addTask, setModalVisible }) => {
+export default AddTaskModal = ({
+  modalVisible,
+  addTaskTag,
+  setModalVisible,
+}) => {
   const [taskTitle, setTaskTitle] = useState("");
+  const [tagsList, setTagsList] = useState([]);
+  const [selectedTag, setSelectedTag] = useState({});
 
   const closeModal = () => {
     setModalVisible(false);
@@ -12,40 +20,65 @@ export default AddTaskModal = ({ modalVisible, addTask, setModalVisible }) => {
 
   const handleAddTask = () => {
     if (taskTitle.trim()) {
-      addTask({ title: taskTitle.trim(), isCompleted: false });
+      addTaskTag({ title: taskTitle.trim(), isCompleted: false }, selectedTag);
       setTaskTitle("");
+      setSelectedTag({});
       setModalVisible(false);
     } else {
       Alert.alert("Please add a new task.");
     }
   };
 
+  const getTags = async () => {
+    try {
+      const tags = await db.sql("SELECT * FROM tags");
+      setTagsList(tags);
+    } catch (error) {
+      console.error("Error getting tags", error);
+    }
+  };
+
+  useEffect(() => {
+    getTags();
+  }, []);
+
   return (
-    <Modal style={styles.container} visible={modalVisible}>
+    <Modal
+      style={styles.container}
+      visible={modalVisible}
+      onDismiss={closeModal}
+    >
       <Button style={styles.closeButton} onPress={closeModal}>
         <Icon name="close" size={25} color="gray" />
       </Button>
-      <View style={styles.newTaskBox}>
-        <TextInput
-          mode="flat"
-          style={[
-            styles.textInput,
-            Platform.OS === "web" && {
-              boxShadow: "none",
-              border: "none",
-              outline: "none",
-            },
-          ]}
-          contentStyle={styles.textInputContent}
-          underlineColor="transparent"
-          activeUnderlineColor="#6BA2EA"
-          value={taskTitle}
-          onChangeText={setTaskTitle}
-          placeholder="Add a new task"
-          keyboardType="default"
-        />
-        <Button style={styles.button} onPress={handleAddTask}>
-          <Icon name="enter" size={20} color="gray"></Icon>
+      <View>
+        <View style={styles.newTaskBox}>
+          <TextInput
+            mode="flat"
+            style={[
+              styles.textInput,
+              Platform.OS === "web" && {
+                boxShadow: "none",
+                border: "none",
+                outline: "none",
+              },
+            ]}
+            contentStyle={styles.textInputContent}
+            underlineColor="transparent"
+            activeUnderlineColor="#6BA2EA"
+            value={taskTitle}
+            onChangeText={setTaskTitle}
+            label="Enter a new task"
+            keyboardType="default"
+          />
+        </View>
+        <DropdownMenu tagsList={tagsList} setSelectedTag={setSelectedTag} />
+        <Button
+          style={styles.addTaskButton}
+          textColor="black"
+          onPress={handleAddTask}
+        >
+          Add task
         </Button>
       </View>
     </Modal>
@@ -64,9 +97,11 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     borderWidth: 1,
     borderColor: "lightgray",
+    backgroundColor: "#f0f5fd",
+    marginBottom: 10,
   },
   textInput: {
-    width: "80%",
+    width: "100%",
     backgroundColor: "transparent",
     height: 50,
   },
@@ -83,8 +118,12 @@ const styles = StyleSheet.create({
   },
   closeButton: {
     alignItems: "flex-start",
-    bottom: 230,
+    bottom: 180,
     left: -10,
     zIndex: 1,
+  },
+  addTaskButton: {
+    backgroundColor: "#b2cae9",
+    marginTop: 10,
   },
 });
