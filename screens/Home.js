@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, FlatList, Alert } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  Alert,
+  Platform,
+} from "react-native";
 import { Button } from "react-native-paper";
 import Icon from "react-native-vector-icons/FontAwesome";
 import db from "../db/dbConnection";
@@ -78,7 +85,7 @@ export default Home = ({ route }) => {
 
   const deleteTask = async (taskId) => {
     try {
-      await db.sql("DELETE FROM tasks_tags WHERE task_id=?", taskId)
+      await db.sql("DELETE FROM tasks_tags WHERE task_id=?", taskId);
       const result = await db.sql("DELETE FROM tasks WHERE id=?", taskId);
       console.log(`deleted ${result[0].TOTAL_CHANGES} task`);
       getTasks();
@@ -88,21 +95,31 @@ export default Home = ({ route }) => {
   };
 
   const handleDelete = (taskId) => {
-    Alert.alert(
-      "Confirm Delete",
-      "Are you sure you want to delete this task?",
-      [
-        {
-          text: "Cancel",
-          style: "cancel",
-        },
-        {
-          text: "Delete",
-          onPress: () => deleteTask(taskId),
-          style: "destructive",
-        },
-      ]
-    );
+    console.log(taskId);
+    if (Platform.OS === "web") {
+      const confirmDelete = window.confirm(
+        "Are you sure you want to delete this task?"
+      );
+      if (confirmDelete) {
+        deleteTask(taskId);
+      }
+    } else {
+      Alert.alert(
+        "Confirm Delete",
+        "Are you sure you want to delete this task?",
+        [
+          {
+            text: "Cancel",
+            style: "cancel",
+          },
+          {
+            text: "Delete",
+            onPress: () => deleteTask(taskId),
+            style: "destructive",
+          },
+        ]
+      );
+    }
   };
 
   useEffect(() => {
