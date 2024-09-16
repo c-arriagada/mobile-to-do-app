@@ -9,7 +9,7 @@ import {
   Button,
   TextInput,
 } from "react-native-paper";
-import db from "../db/dbConnection";
+import useCategories from "../hooks/useCategories";
 
 const Categories = ({ navigation }) => {
   const today = new Date();
@@ -27,82 +27,22 @@ const Categories = ({ navigation }) => {
     month: "long",
     day: "numeric",
   });
+  
+  const {moreCategories, addCategory} = useCategories();
 
-  const [moreCategories, setMoreCategories] = useState(["Work", "Personal"]);
-
-  const [category, setCategory] = useState("");
+  const [newCategory, setNewCategory] = useState("");
   const [visible, setVisible] = React.useState(false);
 
   const showModal = () => setVisible(true);
   const hideModal = () => setVisible(false);
 
   function handleAddCategory() {
-    if (category) {
-      addCategory();
-      setMoreCategories([...moreCategories, category]);
+    if (newCategory) {
+      addCategory(newCategory);
     }
-    setCategory("");
+    setNewCategory("");
     hideModal();
   }
-
-  const addCategory = async () => {
-    try {
-      await db.sql("INSERT INTO tags (name) VALUES (?) RETURNING *", category);
-    } catch (error) {
-      console.error("Error adding category", error);
-    }
-  };
-
-  const getCategories = async () => {
-    try {
-      const tags = await db.sql("SELECT * FROM tags");
-      const filteredTags = tags.filter((tag) => {
-        return tag["name"] !== "Work" && tag["name"] !== "Personal";
-      });
-      setMoreCategories([
-        ...moreCategories,
-        ...filteredTags.map((tag) => tag.name),
-      ]);
-    } catch (error) {
-      console.error("Error getting tags/categories", error);
-    }
-  };
-
-  useEffect(() => {
-    async function createTables() {
-      try {
-        const createTasksTable = await db.sql(
-          "CREATE TABLE IF NOT EXISTS tasks (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL, isCompleted INT NOT NULL);"
-        );
-
-        const createTagsTable = await db.sql(
-          "CREATE TABLE IF NOT EXISTS tags (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, UNIQUE(name));"
-        );
-
-        const createTagsTasksTable = await db.sql(
-          "CREATE TABLE IF NOT EXISTS tasks_tags (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, task_id INTEGER NOT NULL, tag_id INTEGER NOT NULL, FOREIGN KEY (task_id) REFERENCES tasks(id), FOREIGN KEY (tag_id) REFERENCES tags(id));"
-        );
-
-        if (
-          createTagsTable === "OK" &&
-          createTagsTable === "OK" &&
-          createTagsTasksTable === "OK"
-        ) {
-          console.log("Successfully created tables");
-
-          await db.sql("INSERT OR IGNORE INTO tags (name) VALUES (?)", "Work");
-          await db.sql(
-            "INSERT OR IGNORE INTO tags (name) VALUES (?)",
-            "Personal"
-          );
-          getCategories();
-        }
-      } catch (error) {
-        console.error("Error creating tables", error);
-      }
-    }
-    createTables();
-  }, []);
 
   return (
     <>
@@ -115,8 +55,8 @@ const Categories = ({ navigation }) => {
           <TextInput
             style={styles.textInput}
             label="Enter a new category"
-            value={category}
-            onChangeText={(category) => setCategory(category)}
+            value={newCategory}
+            onChangeText={(newCategory) => setNewCategory(newCategory)}
             keyboardType="default"
             activeUnderlineColor="#6ba2ea"
             underlineColor="none"

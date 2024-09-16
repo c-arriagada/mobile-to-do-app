@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { View, StyleSheet, Alert, Platform } from "react-native";
 import { TextInput, Button, Modal } from "react-native-paper";
-import Icon from "react-native-vector-icons/AntDesign";
 import DropdownMenu from "./DropdownMenu";
 import db from "../db/dbConnection";
 
@@ -44,13 +43,10 @@ export default AddTaskModal = ({
 
   return (
     <Modal
-      style={styles.container}
+      style={styles.modalContainer}
       visible={modalVisible}
       onDismiss={closeModal}
     >
-      <Button style={styles.closeButton} onPress={closeModal}>
-        <Icon name="close" size={25} color="gray" />
-      </Button>
       <View>
         <View style={styles.newTaskBox}>
           <TextInput
@@ -86,7 +82,7 @@ export default AddTaskModal = ({
 };
 
 const styles = StyleSheet.create({
-  container: {
+  modalContainer: {
     flex: 1,
     backgroundColor: "white",
     padding: 10,
