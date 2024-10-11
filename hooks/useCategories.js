@@ -10,8 +10,8 @@ const useCategories = () => {
       const filteredTags = tags.filter((tag) => {
         return tag["name"] !== "Work" && tag["name"] !== "Personal";
       });
-      setMoreCategories([
-        ...moreCategories,
+      setMoreCategories((prevCategories) => [
+        ...prevCategories,
         ...filteredTags.map((tag) => tag.name),
       ]);
     } catch (error) {
@@ -21,8 +21,11 @@ const useCategories = () => {
 
   const addCategory = async (newCategory) => {
     try {
-      await db.sql("INSERT INTO tags (name) VALUES (?) RETURNING *", newCategory);
-      setMoreCategories(prevCategories => [...prevCategories, newCategory]);
+      await db.sql(
+        "INSERT INTO tags (name) VALUES (?) RETURNING *",
+        newCategory
+      );
+      setMoreCategories((prevCategories) => [...prevCategories, newCategory]);
     } catch (error) {
       console.error("Error adding category", error);
     }

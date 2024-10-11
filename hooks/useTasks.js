@@ -1,26 +1,35 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import db from "../db/dbConnection";
 
 const useTasks = (tag = null) => {
   const [taskList, setTaskList] = useState([]);
 
-  const getTasks = async () => {
+  const getTasks = useCallback(async () => {
     try {
+      let result;
       if (tag) {
-        const result = await db.sql(
-          "SELECT tasks.*, tags.id AS tag_id, tags.name AS tag_name FROM tasks JOIN tasks_tags ON tasks.id = tasks_tags.task_id JOIN tags ON tags.id = tasks_tags.tag_id WHERE tag_name=?",
+        result = await db.sql(
+          `
+          SELECT tasks.*, tags.id AS tag_id, tags.name AS tag_name 
+          FROM tasks 
+          JOIN tasks_tags ON tasks.id = tasks_tags.task_id 
+          JOIN tags ON tags.id = tasks_tags.tag_id 
+          WHERE tag_name=?`,
           tag
         );
         setTaskList(result);
       } else {
-        const result =
-          await db.sql`SELECT tasks.*, tags.id AS tag_id, tags.name AS tag_name FROM tasks JOIN tasks_tags ON tasks.id = tasks_tags.task_id JOIN tags ON tags.id = tasks_tags.tag_id`;
+        result = await db.sql`
+          SELECT tasks.*, tags.id AS tag_id, tags.name AS tag_name 
+          FROM tasks 
+          JOIN tasks_tags ON tasks.id = tasks_tags.task_id 
+          JOIN tags ON tags.id = tasks_tags.tag_id`;
         setTaskList(result);
       }
     } catch (error) {
       console.error("Error getting tasks", error);
     }
-  };
+  }, [tag, taskList]);
 
   const updateTask = async (completedStatus, taskId) => {
     try {
@@ -77,7 +86,7 @@ const useTasks = (tag = null) => {
 
   useEffect(() => {
     getTasks();
-  }, [tag]);
+  }, [getTasks]);
 
   return {
     taskList,

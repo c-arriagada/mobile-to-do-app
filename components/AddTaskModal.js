@@ -22,7 +22,7 @@ export default AddTaskModal = ({
       addTaskTag({ title: taskTitle.trim(), isCompleted: false }, selectedTag);
       setTaskTitle("");
       setSelectedTag({});
-      setModalVisible(false);
+      closeModal();
     } else {
       Alert.alert("Please add a new task.");
     }
