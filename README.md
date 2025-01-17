@@ -23,5 +23,5 @@ This command will start expo.
 ## Usage
 Running on Mobile (iOS Simulator):
 
-After running `npm start` press i to open the iOS simulator.
+After running `npm start` press `i` to open the iOS simulator.
 
