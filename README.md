@@ -8,7 +8,7 @@ A simple To Do application built with React Native and Expo for iOS. The app use
 - Dropdown Menu: Select categories for tasks from a predefined list.
 
 ## Set Up
-After you've cloned the repo create a `.env` file and add your SQLite Cloud connection string. Make sure your connection string includes the name of your database before the api key. If the database name isn't included, you'll get an error when you run the application. 
+After you've cloned the repo create a `.env` file and add your SQLite Cloud connection string. **Make sure your connection string includes the name of your database before the api key.** If the database name isn't included, you'll get an error when you run the application. 
 ```bash
 DB_CONNECTON_STRING="<your-connection-string>" 
 ```
@@ -21,7 +21,7 @@ npm start
 This command will start expo.
 
 ## Usage
-Running on Mobile:
+Running on Mobile (iOS Simulator):
 
-Open the Expo Go app on your mobile device.
-Scan the QR code displayed in the terminal.
+After running `npm start` press i to open the iOS simulator.
+
